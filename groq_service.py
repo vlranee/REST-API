@@ -1,5 +1,6 @@
 import os
 import logging
+import httpx
 from groq import Groq
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,8 @@ def get_client() -> Groq:
         api_key = os.environ.get("GROQ_API_KEY")
         if not api_key:
             raise RuntimeError("GROQ_API_KEY tidak ditemukan di environment")
-        _client = Groq(api_key=api_key)
+        http_client = httpx.Client()
+        _client = Groq(api_key=api_key, http_client=http_client)
     return _client
 
 
@@ -50,4 +52,4 @@ Jangan gunakan bullet point. Gunakan paragraf mengalir."""
         timeout=timeout
     )
 
-    return response.choices[0].message.content.strip()  
+    return response.choices[0].message.content.strip()
