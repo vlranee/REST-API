@@ -28,8 +28,12 @@ MAX_TEXT_LENGTH = 2000
 @app.route("/")
 def home():
     return jsonify({
-        "status":"running",
-        "message":"Smishing Detection API aktif"
+        "status": "running",
+        "message": "Smishing Detection API aktif",
+        "endpoints": {
+            "health": "/health",
+            "predict": "/api/v1/predictions"
+        }
     })
 
 @app.route("/health")
