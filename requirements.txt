@@ -3,6 +3,6 @@ gunicorn==22.0.0
 flask-cors==4.0.1
 python-dotenv==1.0.1
 tensorflow
-groq==0.9.0
+groq
 numpy==1.26.4
 gdown==5.2.0
