@@ -5,4 +5,5 @@ python-dotenv==1.0.1
 tensorflow
 groq
 numpy==1.26.4
-gdown==5.2.0
+gdown==5.2.0    
+flasgger==0.9.7.1
