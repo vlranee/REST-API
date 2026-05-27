@@ -3,6 +3,7 @@ import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
+from flasgger import Swagger
 
 load_dotenv()
 
@@ -23,6 +24,14 @@ from groq_service import generate_rekomendasi
 app = Flask(__name__)
 CORS(app)
 
+Swagger(app, template={
+    "info": {
+        "title": "Smishing Detection API",
+        "description": "API untuk mendeteksi SMS phishing (smishing)",
+        "version": "1.0.0"
+    }
+})
+
 MAX_TEXT_LENGTH = 2000
 
 @app.route("/")
@@ -32,17 +41,60 @@ def home():
         "message": "Smishing Detection API aktif",
         "endpoints": {
             "health": "/health",
-            "predict": "/api/v1/predictions"
+            "predict": "/api/v1/predictions",
+            "docs": "/docs"
         }
     })
 
 @app.route("/health")
 def health():
-    return jsonify({"status":"healthy"}),200
-
+    return jsonify({"status": "healthy"}), 200
 
 @app.route("/api/v1/predictions", methods=["POST"])
 def predict():
+    """
+    Deteksi SMS Phishing
+    ---
+    tags:
+      - Prediction
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - teks
+          properties:
+            teks:
+              type: string
+              example: "Selamat! Anda menang hadiah 10 juta. Klik http://bit.ly/hadiahanda"
+    responses:
+      200:
+        description: Hasil prediksi
+        schema:
+          type: object
+          properties:
+            label:
+              type: string
+              example: PHISHING
+            is_phishing:
+              type: boolean
+            phishing_score:
+              type: number
+            normal_score:
+              type: number
+            confidence:
+              type: number
+            rekomendasi:
+              type: string
+      400:
+        description: Field teks tidak ada atau kosong
+      422:
+        description: Teks terlalu panjang
+      500:
+        description: Internal server error
+    """
     data = request.get_json(silent=True)
 
     if not data or "teks" not in data:
@@ -93,7 +145,7 @@ def predict():
         "phishing_score": result["phishing_score"],
         "normal_score": round(100 - result["phishing_score"], 2),
         "confidence": result["confidence"],
-        "rekomendasi": rekomendasi 
+        "rekomendasi": rekomendasi
     }), 200
 
 if __name__ == "__main__":
